@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Assinador JS Selfsigned DaVinci</title>
+
+<script language="JavaScript" type="text/javascript" src="http://kjur.github.io/jsrsasign/jsrsasign-latest-all-min.js"></script>
+
+<script>
+
+function readPriv(){
+	
+	// READ PRIV
+	var filepriv = document.getElementById('inputpriv');
+	
+	var fr = new FileReader();
+	
+	fr.onloadend = function() {
+		
+		var priv_content = this.result;
+		
+		// READ MSG
+		var filemsg = document.getElementById('inputmsg');
+		
+		var fr2 = new FileReader();
+		
+		fr2.onloadend = function() {
+			
+			console.log(priv_content);
+		
+			var key = new RSAKey();
+			key.readPrivateKeyFromPEMString(priv_content)
+
+			console.log(key);
+					
+			// initialize
+			var sig = new KJUR.crypto.Signature({"alg": "SHA256withRSA"});
+			// initialize for signature generation
+
+			sig.init(key);   // rsaPrivateKey of RSAKey object
+			// update data
+			sig.updateString(this.result);
+			// calculate signature
+			var sigValueHex = sig.sign();
+
+			console.log(sigValueHex);
+			
+			document.getElementById('output3').innerHTML = sigValueHex;
+			
+		}
+		
+		fr2.readAsText(filemsg.files[0]);
+		// END READ MSG
+	}
+	
+	fr.readAsText(filepriv.files[0]);
+	// END READ PRIV
+};
+
+</script>
+
+</head>
+<body>
+	
+	<label>PRIVATE KEY: </label><input type="file" name="inputpriv" id="inputpriv"> 
+	
+	<label>TEXT MESSAGE: </label><input type="file" name="inputmsg" id="inputmsg"> 
+	
+	
+	<button onclick="readPriv();">Enviar</button>
+
+	<br> 
+	
+	<label style="vertical-align: top;">HEX HASH: </label><div id="output3" style="max-width:500px;line-break:anywhere;display:inline-block;height:500px;margin-top: 40px;"></div> 
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Assinador JS Selfsigned DaVinci</title>
+
+<!-- script para canonizar -->
+<script>
+// JSON canonicalize function. Creates crypto safe predictable canocalization of JSON as defined by RFC8785
+// https://github.com/erdtman/canonicalize
+function serialize(object) {
+    var buffer = '';
+    if (object !== null && typeof object === 'object') {
+        if (Array.isArray(object)) {
+            buffer += '[';
+            let next = false;
+            // Array - Maintain element order
+            object.forEach((element) => {
+                if (next) {
+                    buffer += ',';
+                }
+                next = true;
+                // Recursive call
+                buffer += serialize(element);
+            });
+            buffer += ']';
+        } else {
+            buffer += '{';
+            let next = false;
+            // Object - Sort properties before serializing
+            Object.keys(object).sort().forEach((property) => {
+                if (next) {
+                    buffer += ',';
+                }
+                next = true;
+                // Properties are just strings - Use ES6
+                buffer += JSON.stringify(property);
+                buffer += ':';
+                // Recursive call
+                buffer += serialize(object[property]);
+            });
+            buffer += '}';
+        }
+    } else {
+        // Primitive data type - Use ES6
+        buffer += JSON.stringify(object);
+    }
+    return buffer;
+};
+</script>
+
+<!-- script para ler o json -->
+<script>
+    function read() {
+        // READ JSON
+        var filejson = document.getElementById('inputjson');
+        
+        var fr = new FileReader();
+        
+        fr.onload = function() {
+            var content = fr.result; // Conteúdo do arquivo como texto
+            var parsedContent = JSON.parse(content); // Converter o conteúdo para um objeto JavaScript
+			delete parsedContent.id; //Remove o ID
+			delete parsedContent.meta; //Remove o meta
+            var serializedContent = serialize(parsedContent); // Chamar a função serialize para processar o conteúdo
+            document.getElementById('output3').textContent = serializedContent;
+        }
+        
+        fr.readAsText(filejson.files[0]);
+        // END READ JSON
+    };
+</script>
+
+</head>
+<body>
+    
+    <input type="file" name="inputjson" id="inputjson"> 
+    
+    <button onclick="read();">Enviar</button>
+
+    <br> 
+    
+    <pre id="output3"></pre> 
+
+</body>
+</html>

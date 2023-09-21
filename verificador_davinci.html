@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Verificador JS Selfsigned DaVinci</title>
+
+<script language="JavaScript" type="text/javascript" src="http://kjur.github.io/jsrsasign/jsrsasign-latest-all-min.js"></script>
+
+<script>
+
+function readPriv(){
+	
+	// READ PRIV
+	var inputpub = document.getElementById('inputpub');
+	
+	var fr = new FileReader();
+	
+	fr.onloadend = function() {
+		
+		var pub_content = this.result;
+		
+		// READ MSG
+		var filemsg = document.getElementById('inputmsg');
+		
+		var fr2 = new FileReader();
+		
+		fr2.onloadend = function() {
+			
+			var texthash = document.getElementById('inputhash').value;
+			
+			console.log(pub_content);
+			
+			console.log(this.result);
+			
+			console.log(texthash);
+			
+			var sig2 = new KJUR.crypto.Signature({"alg": "SHA256withRSA"});
+			sig2.init(pub_content);
+			sig2.updateString(this.result);
+			var isValid = sig2.verify(texthash);
+			
+			console.log(isValid);
+			
+			document.getElementById('output3').innerHTML = (isValid) ? 'VÁLIDO' : 'INVÁLIDO';
+		}
+		
+		fr2.readAsText(filemsg.files[0]);
+		// END READ MSG
+	}
+	
+	fr.readAsText(inputpub.files[0]);
+	// END READ PRIV
+};
+
+</script>
+
+</head>
+<body>
+	
+	<label>PUB: </label><input type="file" name="inputpub" id="inputpub"> 
+	
+	<label>TEXT MESSAGE: </label><input type="file" name="inputmsg" id="inputmsg">
+	
+	<label>HEX HASH: </label><textarea name="inputhash" id="inputhash"></textarea> 
+	
+	
+	<button onclick="readPriv();">Enviar</button>
+
+	<br> 
+	
+	<pre id="output3"></pre> 
+
+</body>
+</html>
